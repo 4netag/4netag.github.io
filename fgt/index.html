@@ -274,7 +274,7 @@
     <body>
         <div class="container">
             <div class="header">
-                <h1>2FortiGate FMG VPN Configurator</h1>
+                <h1>3FortiGate FMG VPN Configurator</h1>
                 <p>4net - Jeyson Siew</p>
             </div>
 
@@ -366,42 +366,475 @@
         }, 3000);
     }
 
-                function generateConfig() {
-                    var customerID = document.getElementById('customerID').value;
-                    var systemName = document.getElementById('systemName').value;
-                    var wanInterface = document.getElementById('wanInterface').value;
-                    var pskSecret = document.getElementById('pskSecret').value;
-                    var loIP = document.getElementById('loIP').value;
-                    var fmgIP = document.getElementById('fmgIP').value;
-                    var wanIP = document.getElementById('wanIP').value;
-					
-                    var enableNtp = document.getElementById('enableNtp').checked;
-                    var ntpServer = document.getElementById('ntpServer').value;
+ function generateConfig() {
+        var systemName = document.getElementById('systemName').value;
+        var systemContact = document.getElementById('systemContact').value;
+        var location = document.getElementById('location').value;
+        var switchType = document.getElementById('switchType').value;
+        var managementVlan = document.getElementById('managementVlan').value;
+        var defaultGateway = document.getElementById('defaultGateway').value;
+        
+        var isOS6465 = switchType === 'p6' || switchType === 'p12' || switchType === 'p28';
+        var ps1Name = isOS6465 ? document.getElementById('ps1Name').value : '';
+        var ps1Type = isOS6465 ? document.getElementById('ps1Type').value : '';
+        var ps1Wattage = isOS6465 && ps1Type === 'third-party' ? document.getElementById('ps1Wattage').value : '';
+        
+        var enablePs2 = isOS6465 ? document.getElementById('enablePs2').checked : false;
+        var ps2Name = enablePs2 ? document.getElementById('ps2Name').value : '';
+        var ps2Type = enablePs2 ? document.getElementById('ps2Type').value : '';
+        var ps2Wattage = enablePs2 && ps2Type === 'third-party' ? document.getElementById('ps2Wattage').value : '';
+        
+        var enableLacp = document.getElementById('enableLacp').checked;
+        var nativeVlan = enableLacp ? document.getElementById('lacpNativeVlan').value : document.getElementById('nativeVlan').value;
+        var uplinkPortsInput = enableLacp ? '' : document.getElementById('uplinkPorts').value;
+        var uplinkDescriptions = enableLacp ? '' : document.getElementById('uplinkDescriptions').value;
+        
+        var lacpAggNumber = enableLacp ? document.getElementById('lacpAggNumber').value : '';
+        var lacpName = enableLacp ? document.getElementById('lacpName').value : '';
+        var lacpPortsInput = enableLacp ? document.getElementById('lacpPorts').value : '';
+        
+        var ipInterfaceName = document.getElementById('ipInterfaceName').value;
+        var ipInterfaceAddress = document.getElementById('ipInterfaceAddress').value;
+        var ipInterfaceMask = document.getElementById('ipInterfaceMask').value;
+        
+        var enableNtp = document.getElementById('enableNtp').checked;
+        var ntpServer = document.getElementById('ntpServer').value;
+        
+        var enableDomain = document.getElementById('enableDomain').checked;
+        var domainName = document.getElementById('domainName').value;
+        var nameServer = document.getElementById('nameServer').value;
+        
+        var enableSyslog = document.getElementById('enableSyslog').checked;
+        var syslogServer = document.getElementById('syslogServer').value;
+        
+        var enableQos = document.getElementById('enableQos').checked;
+        var enableLoopbackDetection = document.getElementById('enableLoopbackDetection').checked;
+        var loopbackTimer = document.getElementById('loopbackTimer').value;
+        var enablePoe = document.getElementById('enablePoe').checked;
 
+        if (!systemName || !systemContact || !location || !ipInterfaceName || !ipInterfaceAddress || !ipInterfaceMask || !defaultGateway) {
+            showNotification('Bitte fülle alle Pflichtfelder aus!', 'error');
+            return;
+        }
 
+        if (isOS6465 && (!ps1Name || !ps1Type)) {
+            showNotification('Bitte fülle alle Netzteil-Pflichtfelder aus!', 'error');
+            return;
+        }
 
-                    if (!systemName || !wanInterface || !pskSecret || !customerID || !loIP || !fmgIP || !wanIP) {
-                        showNotification('Bitte fülle alle Pflichtfelder aus!', 'error');
-                        return;
+        if (isOS6465 && ps1Type === 'third-party' && !ps1Wattage) {
+            showNotification('Bitte gib die Wattage für Third-Party Netzteil 1 an!', 'error');
+            return;
+        }
+
+        if (enablePs2 && (!ps2Name || !ps2Type)) {
+            showNotification('Bitte fülle alle Netzteil 2 Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        if (enablePs2 && ps2Type === 'third-party' && !ps2Wattage) {
+            showNotification('Bitte gib die Wattage für Third-Party Netzteil 2 an!', 'error');
+            return;
+        }
+
+        if (enableLacp && (!lacpAggNumber || !lacpName || !lacpPortsInput)) {
+            showNotification('Bitte fülle alle LACP Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        var vlans = [];
+        document.querySelectorAll('#vlanBuilder .vlan-item').forEach(function(item) {
+            var inputs = item.querySelectorAll('input');
+            if (inputs[0].value && inputs[1].value) {
+                vlans.push({
+                    id: inputs[0].value,
+                    name: inputs[1].value
+                });
+            }
+        });
+
+        if (vlans.length === 0) {
+            showNotification('Mindestens ein VLAN muss konfiguriert sein!', 'error');
+            return;
+        }
+
+        var uplinkPorts = uplinkPortsInput.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+        var lacpPorts = lacpPortsInput.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+
+        var uplinkAliases = {};
+        if (uplinkDescriptions) {
+            uplinkDescriptions.split('\n').forEach(function(line) {
+                var parts = line.split(':');
+                if (parts.length >= 2) {
+                    var port = parts[0].trim();
+                    var desc = parts.slice(1).join(':').trim();
+                    if (port && desc) {
+                        uplinkAliases[port] = desc;
                     }
-
-
-
-                    var txt = '';
-                    txt += 'system name "' + systemName + '"\n';
-                    txt += 'system name "' + customerID + '"\n';
-                    txt += 'system name "' + wanInterface + '"\n';
-                    txt += 'system name "' + wanIP + '"\n';
-                    txt += 'system name "' + pskSecret + '"\n';
-                    txt += 'system name "' + loIP + '"\n';
-                    txt += 'system name "' + fmgIP + '"\n';
-
-
-
-                    document.getElementById('configOutput').textContent = txt;
-                    currentConfig = txt;
-                    showNotification('Konfiguration erfolgreich generiert!');
                 }
+            });
+        }
+
+        var portConfigs = [];
+        document.querySelectorAll('#portConfigBuilder .port-config').forEach(function(item) {
+            var inputs = item.querySelectorAll('input, select');
+            var range = inputs[0].value;
+            var alias = inputs[1].value;
+            var speed = inputs[2].value;
+            var vlan = inputs[3].value;
+            
+            if (range && vlan) {
+                portConfigs.push({ range: range, alias: alias, speed: speed, vlan: vlan });
+            }
+        });
+
+        var txt = '';
+        txt += '!========================================!\n';
+        txt += '! File: /flash/working/vcboot.cfg        !\n';
+        txt += '!========================================!\n';
+        
+        if (isOS6465) {
+            txt += '! Power Supply Configuration:\n';
+            if (ps1Type === 'third-party') {
+                txt += 'powersupply 1 name "' + ps1Name + '" type third-party wattage ' + ps1Wattage + '\n';
+            } else {
+                txt += 'powersupply 1 name "' + ps1Name + '" type ' + ps1Type + '\n';
+            }
+            
+            if (enablePs2) {
+                if (ps2Type === 'third-party') {
+                    txt += 'powersupply 2 name "' + ps2Name + '" type third-party wattage ' + ps2Wattage + '\n';
+                } else {
+                    txt += 'powersupply 2 name "' + ps2Name + '" type ' + ps2Type + '\n';
+                }
+            }
+            txt += '\n';
+        }
+        
+        txt += '! Chassis:\n';
+        txt += 'system name "' + systemName + '"\n';
+        txt += 'system contact "' + systemContact + '"\n';
+        txt += 'system location "' + location + '"\n\n';
+        
+        txt += '! Configuration:\n';
+        txt += 'configuration error-file-limit 2\n\n';
+
+        txt += '! Capability Manager:\n';
+        txt += '! Virtual Flow Control:\n';
+        txt += '! LFP:\n';
+        txt += '! Interface:\n';
+
+        if (portConfigs.length > 0) {
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                for (var i = start; i <= end; i++) {
+                    var portId = '1/1/' + i;
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast rate cap% 5 low-threshold 3\n';
+                    txt += 'interfaces port ' + portId + ' flood-limit bcast action trap\n';
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast action trap\n';
+                    
+                    if (pc.alias) {
+                        txt += 'interfaces port ' + portId + ' alias "' + pc.alias + '"\n';
+                    }
+                    
+                    if (pc.speed) {
+                        txt += 'interfaces port ' + portId + ' speed ' + pc.speed + '\n';
+                    }
+                }
+            });
+            
+            uplinkPorts.forEach(function(port) {
+                var portId = '1/1/' + port;
+                if (uplinkAliases[port]) {
+                    txt += 'interfaces port ' + portId + ' alias "' + uplinkAliases[port] + '"\n';
+                }
+            });
+            
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                for (var i = start; i <= end; i++) {
+                    var portId = '1/1/' + i;
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast rate enable\n';
+                }
+            });
+            
+            txt += 'interfaces ddm enable\n';
+            txt += 'interfaces ddm-trap enable\n';
+        }
+        txt += '\n';
+
+        txt += '! Port_Manager:\n';
+        txt += '! Link Aggregate:\n';
+        
+        if (enableLacp && lacpPorts.length > 0) {
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' size ' + lacpPorts.length + ' admin-state enable\n';
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' name "' + lacpName + '"\n';
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' actor admin-key ' + lacpAggNumber + '\n';
+            lacpPorts.forEach(function(port) {
+                txt += 'linkagg lacp port 1/1/' + port + ' actor admin-key ' + lacpAggNumber + '\n';
+            });
+        }
+        
+        txt += '! VLAN:\n';
+        txt += 'vlan 1 admin-state disable\n';
+        
+        if (vlans.length > 0) {
+            var vlanIds = vlans.map(function(v) { return parseInt(v.id); }).sort(function(a, b) { return a - b; });
+            var vlanRanges = [];
+            var rangeStart = vlanIds[0];
+            var rangePrev = vlanIds[0];
+            
+            for (var i = 1; i <= vlanIds.length; i++) {
+                if (i === vlanIds.length || vlanIds[i] !== rangePrev + 1) {
+                    if (rangeStart === rangePrev) {
+                        vlanRanges.push(rangeStart);
+                    } else {
+                        vlanRanges.push(rangeStart + '-' + rangePrev);
+                    }
+                    if (i < vlanIds.length) {
+                        rangeStart = vlanIds[i];
+                    }
+                }
+                if (i < vlanIds.length) {
+                    rangePrev = vlanIds[i];
+                }
+            }
+            
+            vlanRanges.forEach(function(range) {
+                txt += 'vlan ' + range + ' admin-state enable\n';
+            });
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' name "' + vlan.name + '"\n';
+            });
+        }
+        
+        if (uplinkPorts.length > 0) {
+            var uplinkPortList = uplinkPorts.length === 1 ? '1/1/' + uplinkPorts[0] : '1/1/' + uplinkPorts.join('-');
+            
+            if (nativeVlan) {
+                txt += 'vlan ' + nativeVlan + ' members port ' + uplinkPortList + ' untagged\n';
+            }
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' members port ' + uplinkPortList + ' tagged\n';
+            });
+        }
+        
+        if (enableLacp && lacpAggNumber) {
+            if (nativeVlan) {
+                txt += 'vlan ' + nativeVlan + ' members linkagg ' + lacpAggNumber + ' untagged\n';
+            }
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' members linkagg ' + lacpAggNumber + ' tagged\n';
+            });
+        }
+        
+        if (portConfigs.length > 0) {
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                var portRange = start === end ? '1/1/' + start : '1/1/' + start + '-' + end;
+                txt += 'vlan ' + pc.vlan + ' members port ' + portRange + ' untagged\n';
+            });
+        }
+        txt += '\n';
+
+        txt += '! PVLAN:\n';
+        txt += '! Spanning Tree:\n';
+        txt += 'spantree mode flat\n';
+        txt += 'spantree vlan 1 admin-state enable\n';
+        vlans.forEach(function(vlan) {
+            txt += 'spantree vlan ' + vlan.id + ' admin-state enable\n';
+        });
+        txt += '\n';
+
+        txt += '! DA-UNP:\n\n';
+        txt += '! Bridging:\n';
+        txt += '! Port Mirroring:\n';
+        txt += '! Port Mapping:\n';
+        txt += '! IP:\n';
+        txt += 'ip service ftp admin-state disable\n';
+        txt += 'ip service telnet admin-state disable\n';
+        txt += 'ip interface "' + ipInterfaceName + '" address ' + ipInterfaceAddress + ' mask ' + ipInterfaceMask + ' vlan ' + managementVlan + ' ifindex 2\n\n';
+
+        txt += '! IPv6:\n';
+        txt += '! IPSec:\n';
+        txt += '! IPMS:\n';
+        txt += '! AAA:\n';
+        txt += 'aaa authentication default "local"\n\n';
+
+        txt += '! NTP:\n';
+        if (enableNtp && ntpServer) {
+            txt += 'ntp server ' + ntpServer + ' burst iburst\n';
+            txt += 'ntp client admin-state enable\n';
+        }
+        txt += '\n';
+
+        txt += '! QOS:\n';
+        if (enableQos && portConfigs.length > 0) {
+            txt += 'qos user-port filter bgp ospf rip vrrp dhcp-server pim dvmrp dns-reply user-port shutdown bpdu\n';
+            
+            var allAccessPortRanges = [];
+            portConfigs.forEach(function(pc) {
+                allAccessPortRanges.push(pc.range);
+            });
+            
+            if (allAccessPortRanges.length > 0) {
+                var portGroupList = allAccessPortRanges.map(function(range) {
+                    return '1/1/' + range;
+                }).join(' ');
+                txt += 'policy port group UserPorts ' + portGroupList + '\n';
+                txt += 'qos apply\n';
+            }
+        }
+        txt += '\n';
+
+        txt += '! Policy Manager:\n';
+        txt += '! VLAN Stacking:\n';
+        txt += '! ERP:\n';
+        txt += '! MVRP:\n';
+        txt += '! LLDP:\n';
+        txt += 'lldp nearest-bridge chassis notification enable\n';
+        txt += 'lldp nearest-bridge chassis tlv management port-description enable system-name enable system-description enable\n';
+        txt += 'lldp nearest-bridge chassis tlv management management-address enable\n';
+        txt += 'lldp nearest-bridge chassis tlv med network-policy enable\n\n';
+
+        txt += '! UDLD:\n';
+        txt += '! Server Load Balance:\n';
+        txt += '! High Availability Vlan:\n';
+        txt += '! Session Manager:\n';
+        txt += 'session prompt default "' + systemName + '->"\n';
+        txt += 'command-log enable\n';
+        txt += 'session cli-auto-complete-space enable\n\n';
+
+        txt += '! Web:\n';
+        txt += '! Trap Manager:\n\n';
+        txt += '! Health Monitor:\n';
+        txt += 'health threshold memory 90\n\n';
+        txt += '! System Service:\n';
+        txt += 'swlog output tty enable\n';
+        if (enableSyslog && syslogServer) {
+            txt += 'swlog output socket ' + syslogServer + ' remote command-log\n';
+        }
+        if (enableDomain && domainName) {
+            txt += 'ip domain-name ' + domainName + '\n';
+        }
+        if (enableDomain && nameServer) {
+            txt += 'ip name-server ' + nameServer + '\n';
+        }
+        if (enableDomain) {
+            txt += 'ip domain-lookup\n';
+        }
+        txt += 'system timezone CET\n\n';
+
+        txt += '! SNMP:\n';
+        txt += 'snmp security authentication all\n';
+        txt += 'snmp authentication-trap enable\n\n';
+        txt += '! BFD:\n';
+        txt += '! IP Route Manager:\n';
+        txt += 'ip static-route 0.0.0.0/0 gateway ' + defaultGateway + ' metric 1\n\n';
+
+        txt += '! VRRP:\n';
+        txt += '! UDP Relay:\n';
+        txt += '! RIP:\n';
+        txt += '! OSPF:\n';
+        txt += '! IP Multicast:\n';
+        txt += '! DVMRP:\n';
+        txt += '! IPMR:\n';
+        txt += '! RIPng:\n';
+        txt += '! OSPF3:\n';
+        txt += '! BGP:\n';
+        txt += '! ISIS:\n';
+        txt += '! Module:\n';
+        txt += '! LAN Power:\n';
+        if (enablePoe) {
+            txt += 'lanpower slot 1/1 service start\n';
+        }
+        txt += '\n';
+
+        txt += '! RDP:\n';
+        txt += '! DHL:\n';
+        txt += '! Ethernet-OAM:\n';
+        txt += '! SAA:\n';
+        txt += '! SPB-ISIS:\n';
+        txt += '! SVCMGR:\n';
+        txt += '! EVB:\n';
+        txt += '! APP-FINGERPRINT:\n';
+        txt += '! FCOE:\n';
+        txt += '! QMR:\n';
+        txt += '! OPENFLOW:\n';
+        txt += '! Dynamic auto-fabric:\n';
+        txt += '! SIP Snooping:\n';
+        txt += '! DHCP Server:\n';
+        txt += '! DHCPv6 Relay:\n';
+        txt += '! DHCPv6 Snooping:\n';
+        txt += '! DHCPv6 Server:\n';
+        txt += '! DHCP Message Service:\n';
+        txt += '! DHCP Active Lease Service:\n';
+        txt += '! Virtual Chassis Split Protection:\n';
+        txt += '! DHCP Snooping:\n';
+        txt += '! APP-MONITORING:\n';
+        txt += '! Loopback Detection:\n';
+        
+        if (enableLoopbackDetection) {
+            txt += 'loopback-detection enable\n';
+            txt += 'loopback-detection remote-origin enable\n';
+            txt += 'loopback-detection autorecovery-timer ' + loopbackTimer + '\n';
+            
+            if (portConfigs.length > 0) {
+                portConfigs.forEach(function(pc) {
+                    var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                    var start = parseInt(parts[0].trim());
+                    var end = parseInt(parts[1].trim());
+                    
+                    for (var i = start; i <= end; i++) {
+                        var portId = '1/1/' + i;
+                        txt += 'loopback-detection port ' + portId + ' enable\n';
+                        txt += 'loopback-detection port ' + portId + ' remote-origin enable\n';
+                    }
+                });
+            }
+        }
+        txt += '\n';
+
+        txt += '! VM-SNOOPING:\n';
+        txt += '! PPPOE-IA:\n';
+        txt += '! Security:\n';
+        txt += '! Zero Configuration:\n';
+        txt += '! MAC Security:\n';
+        txt += '! OVC:\n';
+        txt += 'cloud-agent discovery-interval 30\n\n';
+        txt += '! EFM-OAM:\n';
+        txt += '! ALARM-MANAGER:\n';
+        txt += '! DEVICE-PROFILE:\n\n';
+        txt += 'device-profile admin-state enable\n\n';
+        txt += '! PTP:\n';
+        txt += '! IP DHCP RELAY:\n';
+        txt += '! TEST-OAM:\n';
+        txt += '! LOOPBACK TEST:\n';
+        txt += '! UDP6 RELAY:\n';
+        txt += '! MGMT AGENT:\n';
+        txt += '! MRP:\n';
+        txt += '! PKGMGR:\n';
+        txt += '! SITEMGR:\n';
+        txt += '! SWLIC:\n';
+        txt += '! MPLS:\n';
+        txt += '! LDP:\n';
+
+        document.getElementById('configOutput').textContent = txt;
+        currentConfig = txt;
+        showNotification('Konfiguration erfolgreich generiert!');
+    }
 
                 function downloadConfig() {
                     if (!currentConfig) {
