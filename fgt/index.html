@@ -324,24 +324,28 @@
                         <input type="text" id="fmgIP" placeholder="z.B. 51.85.42.11" />
                     </div>
 
-                    <button class="btn btn-primary" type="button" id="generateBtn">⚙️ Konfiguration generieren</button>
-                </div>
+                <button class="btn btn-primary" type="button" id="generateBtn">
+                    ⚙️ Konfiguration generieren
+                </button>
+            </div>
 
-                <div class="output-section">
-                    <h3>Generierte Konfiguration</h3>
-                    <div class="config-output" id="configOutput">
-                        ! Fülle das Formular aus und klicke auf "Konfiguration generieren"
-                    </div>
+            <div class="output-section">
+                <h3>Generierte Konfiguration</h3>
+                <div class="config-output" id="configOutput">! Fülle das Formular aus und klicke auf "Konfiguration generieren"</div>
 
-                    <div class="actions">
-                        <button class="btn btn-primary" type="button" id="downloadBtn">💾 Download</button>
-                        <button class="btn btn-small" type="button" id="copyBtn">📋 Kopieren</button>
-                    </div>
+                <div class="actions">
+                    <button class="btn btn-primary" type="button" id="downloadBtn">
+                        💾 Download
+                    </button>
+                    <button class="btn btn-small" type="button" id="copyBtn">
+                        📋 Kopieren
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
+<script>
             (function() {
                 var currentConfig = '';
 
@@ -351,6 +355,16 @@
                     section.style.display = checkbox.checked ? 'block' : 'none';
                 }
 
+    function showNotification(message, type) {
+        var notification = document.createElement('div');
+        notification.className = 'notification ' + (type || 'success');
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(function() {
+            notification.remove();
+        }, 3000);
+    }
 
                 function generateConfig() {
                     var customerID = document.getElementById('customerID').value;
@@ -360,8 +374,7 @@
                     var loIP = document.getElementById('loIP').value;
                     var fmgIP = document.getElementById('fmgIP').value;
                     var wanIP = document.getElementById('wanIP').value;
-
-
+					
                     var enableNtp = document.getElementById('enableNtp').checked;
                     var ntpServer = document.getElementById('ntpServer').value;
 
@@ -373,7 +386,6 @@
                     }
 
 
-                    });
 
                     var txt = '';
                     txt += '		config vpn ipsec phase1-interface                 \n';
@@ -558,7 +570,7 @@
                 document.getElementById('generateBtn').addEventListener('click', generateConfig);
                 document.getElementById('downloadBtn').addEventListener('click', downloadConfig);
                 document.getElementById('copyBtn').addEventListener('click', copyConfig);
-                    });
+         
                 });
 
                 updateSwitchDefaults();
