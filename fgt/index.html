@@ -206,7 +206,7 @@
         <div class="container">
             <div class="header">
                 <h1>FortiGate FMG VPN Configurator</h1>
-                <p>4net - Jeyson Siew v0.9</p>
+                <p>4net - Jeyson Siew v0.9 - TEST</p>
             </div>
 
             <div class="content">
@@ -288,7 +288,6 @@
                     var pskSecret = document.getElementById('pskSecret').value.trim();
                     var loIP = document.getElementById('loIP').value.trim();
                     var wanIP = document.getElementById('wanIP').value.trim();
-                    var useDdns = document.getElementById('ddns').checked;
 
                     if (!systemName || !wanInterface || !pskSecret || !customerID || !loIP || !wanIP) {
                         showNotification('Bitte fülle alle Pflichtfelder aus!', 'error');
