@@ -53,7 +53,7 @@
         .form-section {
             padding: 30px;
             border-right: 1px solid #e0e0e0;
-            max-height: 900px;
+            max-height: 1000px;
             overflow-y: auto;
         }
 
@@ -344,7 +344,7 @@
 (function() {
     var currentConfig = '';
 
-    function toggleNtp() {
+    function toggleDNS() {
         var checkbox = document.getElementById('ddns');
         var section = document.getElementById('ddns');
         section.style.display = checkbox.checked ? 'block' : 'none';
@@ -553,7 +553,10 @@
         });
     }
 
-    document.getElementById('enableNtp').addEventListener('change', toggleNtp);
+    document.getElementById('ddns').addEventListener('change', toggleDNS);
+    document.getElementById('generateBtn').addEventListener('click', generateConfig);
+    document.getElementById('downloadBtn').addEventListener('click', downloadConfig);
+    document.getElementById('copyBtn').addEventListener('click', copyConfig);
         });
     });
 
