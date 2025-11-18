@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TESET</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) fixed;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .form-section {
+            padding: 30px;
+            border-right: 1px solid #e0e0e0;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .output-section {
+            padding: 30px;
+            background: #f8f9fa;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        label.required:after {
+            content: ' *';
+            color: #dc3545;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            font-family: monospace;
+        }
+
+        .vlan-builder {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .vlan-item {
+            display: grid;
+            grid-template-columns: 100px 1fr 60px;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .port-config {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .port-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 100px 100px 60px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-weight: normal;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .config-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+            font-size: 13px;
+        }
+
+        h3 {
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #28a745;
+            color: white;
+        }
+
+        .notification.error {
+            background: #dc3545;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .ip-interface-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .form-section {
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .ip-interface-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Alcatel Switch Config Generator</h1>
+            <p>Mit korrekter Alcatel-Lucent Syntax</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <h3>System Konfiguration</h3>
+                
+                <div class="form-group">
+                    <label class="required">System Name</label>
+                    <input type="text" id="systemName" placeholder="z.B. SW-Floor-01">
+                </div>
+
+                <div class="form-group">
+                    <label class="required">System Contact</label>
+                    <input type="text" id="systemContact" placeholder="z.B. IT-Admin +41 XX XXX XX XX">
+                </div>
+
+                <div class="form-group">
+                    <label class="required">System Location</label>
+                    <input type="text" id="location" placeholder="z.B. Building A, Floor 1, Room 101">
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Switch Typ</label>
+                    <select id="switchType">
+                        <option value="10">OS6360-P10 (10 Port)</option>
+                        <option value="24" selected>OS6360-P24 (24 Port)</option>
+                        <option value="48">OS6360-P48 (48 Port)</option>
+                        <option value="p6">OS6465-P6 (6 Port)</option>
+                        <option value="p12">OS6465-P12 (12 Port)</option>
+                        <option value="p28">OS6465-P28 (28 Port)</option>
+                    </select>
+                    <small style="color: #666;">Port-Konfiguration wird automatisch angepasst</small>
+                </div>
+
+                <div id="powerSupplySection" style="display: none;">
+                    <h3 style="margin-top: 20px;">Netzteil Konfiguration (OS6465)</h3>
+                    
+                    <div class="form-group">
+                        <label class="required">Netzteil 1 Name</label>
+                        <input type="text" id="ps1Name" placeholder="PSU-1" value="PSU-1">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">Netzteil 1 Typ</label>
+                        <select id="ps1Type">
+                            <option value="ale 48vdc">Alcatel 48V DC</option>
+                            <option value="ale 24vdc">Alcatel 24V DC</option>
+                            <option value="ale hi-ac" selected>Alcatel Hi-AC</option>
+                            <option value="ale lo-ac">Alcatel Lo-AC</option>
+                            <option value="third-party">Third-Party</option>
+                        </select>
+                    </div>
+
+                    <div id="ps1WattageSection" style="display: none;">
+                        <div class="form-group">
+                            <label class="required">Netzteil 1 Wattage (75-185W)</label>
+                            <input type="number" id="ps1Wattage" placeholder="150" value="150" min="75" max="185">
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enablePs2">
+                        <label for="enablePs2">Netzteil 2 konfigurieren</label>
+                    </div>
+
+                    <div id="ps2Section" style="display: none;">
+                        <div class="form-group">
+                            <label class="required">Netzteil 2 Name</label>
+                            <input type="text" id="ps2Name" placeholder="PSU-2" value="PSU-2">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required">Netzteil 2 Typ</label>
+                            <select id="ps2Type">
+                                <option value="ale 48vdc">Alcatel 48V DC</option>
+                                <option value="ale 24vdc">Alcatel 24V DC</option>
+                                <option value="ale hi-ac" selected>Alcatel Hi-AC</option>
+                                <option value="ale lo-ac">Alcatel Lo-AC</option>
+                                <option value="third-party">Third-Party</option>
+                            </select>
+                        </div>
+
+                        <div id="ps2WattageSection" style="display: none;">
+                            <div class="form-group">
+                                <label class="required">Netzteil 2 Wattage (75-185W)</label>
+                                <input type="number" id="ps2Wattage" placeholder="150" value="150" min="75" max="185">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Management Interface</h3>
+
+                <div class="form-group">
+                    <label class="required">Interface Name</label>
+                    <input type="text" id="ipInterfaceName" placeholder="z.B. VL1004_Network_MGMT_IN_CORE" value="VL1004_Network_MGMT_IN_CORE">
+                </div>
+
+                <div class="ip-interface-fields">
+                    <div class="form-group">
+                        <label class="required">IP Adresse</label>
+                        <input type="text" id="ipInterfaceAddress" placeholder="10.100.4.51" value="10.100.4.51">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Subnet Mask</label>
+                        <input type="text" id="ipInterfaceMask" placeholder="255.255.255.0" value="255.255.255.0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Management VLAN ID</label>
+                    <input type="number" id="managementVlan" placeholder="1004" value="1004" min="1" max="4094">
+                </div>
+
+                <div class="form-group">
+                    <label class="required">Default Gateway</label>
+                    <input type="text" id="defaultGateway" placeholder="10.100.4.1" value="10.100.4.1">
+                </div>
+
+                <h3 style="margin-top: 30px;">NTP Configuration (Optional)</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableNtp">
+                    <label for="enableNtp">NTP konfigurieren</label>
+                </div>
+
+                <div id="ntpSection" style="display: none;">
+                    <div class="form-group">
+                        <label>NTP Server IP</label>
+                        <input type="text" id="ntpServer" placeholder="10.100.4.1" value="10.100.4.1">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Domain & DNS (Optional)</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableDomain">
+                    <label for="enableDomain">Domain Name und DNS konfigurieren</label>
+                </div>
+
+                <div id="domainSection" style="display: none;">
+                    <div class="form-group">
+                        <label>Domain Name</label>
+                        <input type="text" id="domainName" placeholder="z.B. domain.local">
+                    </div>
+                    <div class="form-group">
+                        <label>Name Server IP</label>
+                        <input type="text" id="nameServer" placeholder="10.100.4.1" value="10.100.4.1">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Syslog (Optional)</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableSyslog">
+                    <label for="enableSyslog">Remote Syslog Server konfigurieren</label>
+                </div>
+
+                <div id="syslogSection" style="display: none;">
+                    <div class="form-group">
+                        <label>Syslog Server IP</label>
+                        <input type="text" id="syslogServer" placeholder="10.120.0.10" value="10.120.0.10">
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">VLANs</h3>
+
+                <div class="info-box">
+                    <small><strong>Format:</strong> VLAN ID (1-4094) und beschreibender Name</small>
+                </div>
+                
+                <div class="vlan-builder" id="vlanBuilder">
+                    <div class="vlan-item">
+                        <input type="number" placeholder="ID" value="400" min="1" max="4094">
+                        <input type="text" placeholder="Name (z.B. VL0400_Data)" value="VL0400_Data">
+                        <button class="btn btn-small btn-danger" type="button">×</button>
+                    </div>
+                    <div class="vlan-item">
+                        <input type="number" placeholder="ID" value="401" min="1" max="4094">
+                        <input type="text" placeholder="Name (z.B. VL0401_Voice)" value="VL0401_Voice">
+                        <button class="btn btn-small btn-danger" type="button">×</button>
+                    </div>
+                </div>
+                <button class="btn btn-small" type="button" id="addVlanBtn">+ VLAN hinzufügen</button>
+
+                <h3 style="margin-top: 30px;">Uplink Ports</h3>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableLacp">
+                    <label for="enableLacp">LACP (Link Aggregation) verwenden</label>
+                </div>
+
+                <div id="singleUplinkSection">
+                    <div class="form-group">
+                        <label class="required">Uplink Ports (kommagetrennt)</label>
+                        <input type="text" id="uplinkPorts" placeholder="11,12" value="25,26">
+                        <small style="color: #666;">Format: Port-Nummern ohne 1/1/ Präfix</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Native VLAN für Uplinks</label>
+                        <input type="number" id="nativeVlan" placeholder="1004" value="1004" min="1" max="4094">
+                        <small style="color: #666;">Wird als untagged konfiguriert</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Uplink Beschreibungen</label>
+                        <textarea id="uplinkDescriptions" placeholder="25:Uplink to Core-SW Port 1/1/X">25:Uplink to Core-SW Port 1/1/X
+26:Uplink to Core-SW Port 1/1/X</textarea>
+                        <small style="color: #666;">Format: Port:Beschreibung (eine pro Zeile)</small>
+                    </div>
+                </div>
+
+                <div id="lacpSection" style="display: none;">
+                    <div class="form-group">
+                        <label class="required">LACP Aggregation Nummer</label>
+                        <input type="number" id="lacpAggNumber" placeholder="1" value="1" min="1" max="256">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">LACP Name/Beschreibung</label>
+                        <input type="text" id="lacpName" placeholder="Uplink to Core-SW" value="Uplink to Core-SW">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="required">LACP Ports (kommagetrennt)</label>
+                        <input type="text" id="lacpPorts" placeholder="49,50" value="25,26">
+                        <small style="color: #666;">Format: Port-Nummern ohne 1/1/ Präfix</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Native VLAN für LACP</label>
+                        <input type="number" id="lacpNativeVlan" placeholder="1004" value="1004" min="1" max="4094">
+                        <small style="color: #666;">Wird als untagged konfiguriert</small>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Access Ports Konfiguration</h3>
+
+                <div class="info-box">
+                    <small><strong>Port-Konfiguration:</strong> Alias, Speed und VLAN-Zuweisung pro Port-Range</small>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableQos" checked>
+                    <label for="enableQos">QoS für Access Ports aktivieren</label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enableLoopbackDetection" checked>
+                    <label for="enableLoopbackDetection">Loopback Detection für Access Ports aktivieren</label>
+                </div>
+
+                <div id="loopbackSection" style="display: block;">
+                    <div class="form-group">
+                        <label>Autorecovery Timer (Sekunden)</label>
+                        <input type="number" id="loopbackTimer" placeholder="200" value="200" min="0" max="3600">
+                        <small style="color: #666;">Automatische Wiederherstellung nach Loop-Erkennung</small>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="enablePoe" checked>
+                    <label for="enablePoe">PoE (Power over Ethernet) aktivieren</label>
+                </div>
+
+                <div id="portConfigBuilder"></div>
+
+                <button class="btn btn-small" type="button" id="addPortBtn">+ Port-Range hinzufügen</button>
+
+                <button class="btn btn-primary" type="button" id="generateBtn">
+                    ⚙️ Konfiguration generieren
+                </button>
+            </div>
+
+            <div class="output-section">
+                <h3>Generierte Konfiguration</h3>
+                <div class="config-output" id="configOutput">! Fülle das Formular aus und klicke auf "Konfiguration generieren"</div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" type="button" id="downloadBtn">
+                        💾 Download
+                    </button>
+                    <button class="btn btn-small" type="button" id="copyBtn">
+                        📋 Kopieren
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+(function() {
+    var currentConfig = '';
+
+    function toggleNtp() {
+        var checkbox = document.getElementById('enableNtp');
+        var section = document.getElementById('ntpSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function toggleDomain() {
+        var checkbox = document.getElementById('enableDomain');
+        var section = document.getElementById('domainSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function toggleSyslog() {
+        var checkbox = document.getElementById('enableSyslog');
+        var section = document.getElementById('syslogSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function toggleLoopbackDetection() {
+        var checkbox = document.getElementById('enableLoopbackDetection');
+        var section = document.getElementById('loopbackSection');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function togglePs1Type() {
+        var ps1Type = document.getElementById('ps1Type').value;
+        var ps1WattageSection = document.getElementById('ps1WattageSection');
+        ps1WattageSection.style.display = ps1Type === 'third-party' ? 'block' : 'none';
+    }
+
+    function togglePs2() {
+        var checkbox = document.getElementById('enablePs2');
+        var section = document.getElementById('ps2Section');
+        section.style.display = checkbox.checked ? 'block' : 'none';
+    }
+
+    function togglePs2Type() {
+        var ps2Type = document.getElementById('ps2Type').value;
+        var ps2WattageSection = document.getElementById('ps2WattageSection');
+        ps2WattageSection.style.display = ps2Type === 'third-party' ? 'block' : 'none';
+    }
+
+    function toggleLacp() {
+        var checkbox = document.getElementById('enableLacp');
+        var singleSection = document.getElementById('singleUplinkSection');
+        var lacpSection = document.getElementById('lacpSection');
+        if (checkbox.checked) {
+            singleSection.style.display = 'none';
+            lacpSection.style.display = 'block';
+        } else {
+            singleSection.style.display = 'block';
+            lacpSection.style.display = 'none';
+        }
+    }
+
+    function updateSwitchDefaults() {
+        var switchType = document.getElementById('switchType').value;
+        var powerSupplySection = document.getElementById('powerSupplySection');
+        
+        var isOS6465 = switchType === 'p6' || switchType === 'p12' || switchType === 'p28';
+        powerSupplySection.style.display = isOS6465 ? 'block' : 'none';
+        
+        var accessPorts = '';
+        var uplinkPorts = '';
+        var lacpPorts = '';
+        var uplinkDescriptions = '';
+        
+        if (switchType === '10') {
+            accessPorts = '1-8';
+            uplinkPorts = '11,12';
+            lacpPorts = '11,12';
+            uplinkDescriptions = '11:Uplink to Core-SW Port 1/1/X\n12:Uplink to Core-SW Port 1/1/X';
+        } else if (switchType === '24') {
+            accessPorts = '1-24';
+            uplinkPorts = '25,26';
+            lacpPorts = '25,26';
+            uplinkDescriptions = '25:Uplink to Core-SW Port 1/1/X\n26:Uplink to Core-SW Port 1/1/X';
+        } else if (switchType === '48') {
+            accessPorts = '1-48';
+            uplinkPorts = '49,50';
+            lacpPorts = '49,50';
+            uplinkDescriptions = '49:Uplink to Core-SW Port 1/1/X\n50:Uplink to Core-SW Port 1/1/X';
+        } else if (switchType === 'p6') {
+            accessPorts = '1-4';
+            uplinkPorts = '5,6';
+            lacpPorts = '5,6';
+            uplinkDescriptions = '5:Uplink to Core-SW Port 1/1/X\n6:Uplink to Core-SW Port 1/1/X';
+        } else if (switchType === 'p12') {
+            accessPorts = '1-10';
+            uplinkPorts = '11,12';
+            lacpPorts = '11,12';
+            uplinkDescriptions = '11:Uplink to Core-SW Port 1/1/X\n12:Uplink to Core-SW Port 1/1/X';
+        } else if (switchType === 'p28') {
+            accessPorts = '1-26';
+            uplinkPorts = '27,28';
+            lacpPorts = '27,28';
+            uplinkDescriptions = '27:Uplink to Core-SW Port 1/1/X\n28:Uplink to Core-SW Port 1/1/X';
+        }
+        
+        document.getElementById('uplinkPorts').value = uplinkPorts;
+        document.getElementById('uplinkDescriptions').value = uplinkDescriptions;
+        document.getElementById('lacpPorts').value = lacpPorts;
+        
+        var portConfigBuilder = document.getElementById('portConfigBuilder');
+        portConfigBuilder.innerHTML = '';
+        
+        var div = document.createElement('div');
+        div.className = 'port-config';
+        div.innerHTML = '<div class="port-item"><input type="text" placeholder="1-10" title="Port Range" value="' + accessPorts + '"><input type="text" placeholder="Alias (optional)" title="Port Alias" value="Access Port"><select title="Speed"><option value="">Auto</option><option value="10">10 Mbps</option><option value="100">100 Mbps</option><option value="1000">1000 Mbps</option></select><input type="number" placeholder="VLAN" min="1" max="4094" title="VLAN ID" value="400"><button class="btn btn-small btn-danger" type="button">×</button></div>';
+        portConfigBuilder.appendChild(div);
+        div.querySelector('button').addEventListener('click', function() {
+            this.closest('.port-config').remove();
+        });
+    }
+
+    function addVlan() {
+        var builder = document.getElementById('vlanBuilder');
+        var div = document.createElement('div');
+        div.className = 'vlan-item';
+        div.innerHTML = '<input type="number" placeholder="ID" min="1" max="4094"><input type="text" placeholder="Name (z.B. VL0XXX_Name)"><button class="btn btn-small btn-danger" type="button">×</button>';
+        builder.appendChild(div);
+        div.querySelector('button').addEventListener('click', function() {
+            removeVlan(this);
+        });
+    }
+
+    function removeVlan(btn) {
+        var builder = document.getElementById('vlanBuilder');
+        if (builder.children.length > 1) {
+            btn.parentElement.remove();
+        } else {
+            showNotification('Mindestens ein VLAN muss vorhanden sein!', 'error');
+        }
+    }
+
+    function addPortConfig() {
+        var builder = document.getElementById('portConfigBuilder');
+        var div = document.createElement('div');
+        div.className = 'port-config';
+        div.innerHTML = '<div class="port-item"><input type="text" placeholder="1-10" title="Port Range"><input type="text" placeholder="Alias (optional)" title="Port Alias"><select title="Speed"><option value="">Auto</option><option value="10">10 Mbps</option><option value="100">100 Mbps</option><option value="1000">1000 Mbps</option></select><input type="number" placeholder="VLAN" min="1" max="4094" title="VLAN ID"><button class="btn btn-small btn-danger" type="button">×</button></div>';
+        builder.appendChild(div);
+        div.querySelector('button').addEventListener('click', function() {
+            this.closest('.port-config').remove();
+        });
+    }
+
+    function showNotification(message, type) {
+        var notification = document.createElement('div');
+        notification.className = 'notification ' + (type || 'success');
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(function() {
+            notification.remove();
+        }, 3000);
+    }
+
+    function generateConfig() {
+        var systemName = document.getElementById('systemName').value;
+        var systemContact = document.getElementById('systemContact').value;
+        var location = document.getElementById('location').value;
+        var switchType = document.getElementById('switchType').value;
+        var managementVlan = document.getElementById('managementVlan').value;
+        var defaultGateway = document.getElementById('defaultGateway').value;
+        
+        var isOS6465 = switchType === 'p6' || switchType === 'p12' || switchType === 'p28';
+        var ps1Name = isOS6465 ? document.getElementById('ps1Name').value : '';
+        var ps1Type = isOS6465 ? document.getElementById('ps1Type').value : '';
+        var ps1Wattage = isOS6465 && ps1Type === 'third-party' ? document.getElementById('ps1Wattage').value : '';
+        
+        var enablePs2 = isOS6465 ? document.getElementById('enablePs2').checked : false;
+        var ps2Name = enablePs2 ? document.getElementById('ps2Name').value : '';
+        var ps2Type = enablePs2 ? document.getElementById('ps2Type').value : '';
+        var ps2Wattage = enablePs2 && ps2Type === 'third-party' ? document.getElementById('ps2Wattage').value : '';
+        
+        var enableLacp = document.getElementById('enableLacp').checked;
+        var nativeVlan = enableLacp ? document.getElementById('lacpNativeVlan').value : document.getElementById('nativeVlan').value;
+        var uplinkPortsInput = enableLacp ? '' : document.getElementById('uplinkPorts').value;
+        var uplinkDescriptions = enableLacp ? '' : document.getElementById('uplinkDescriptions').value;
+        
+        var lacpAggNumber = enableLacp ? document.getElementById('lacpAggNumber').value : '';
+        var lacpName = enableLacp ? document.getElementById('lacpName').value : '';
+        var lacpPortsInput = enableLacp ? document.getElementById('lacpPorts').value : '';
+        
+        var ipInterfaceName = document.getElementById('ipInterfaceName').value;
+        var ipInterfaceAddress = document.getElementById('ipInterfaceAddress').value;
+        var ipInterfaceMask = document.getElementById('ipInterfaceMask').value;
+        
+        var enableNtp = document.getElementById('enableNtp').checked;
+        var ntpServer = document.getElementById('ntpServer').value;
+        
+        var enableDomain = document.getElementById('enableDomain').checked;
+        var domainName = document.getElementById('domainName').value;
+        var nameServer = document.getElementById('nameServer').value;
+        
+        var enableSyslog = document.getElementById('enableSyslog').checked;
+        var syslogServer = document.getElementById('syslogServer').value;
+        
+        var enableQos = document.getElementById('enableQos').checked;
+        var enableLoopbackDetection = document.getElementById('enableLoopbackDetection').checked;
+        var loopbackTimer = document.getElementById('loopbackTimer').value;
+        var enablePoe = document.getElementById('enablePoe').checked;
+
+        if (!systemName || !systemContact || !location || !ipInterfaceName || !ipInterfaceAddress || !ipInterfaceMask || !defaultGateway) {
+            showNotification('Bitte fülle alle Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        if (isOS6465 && (!ps1Name || !ps1Type)) {
+            showNotification('Bitte fülle alle Netzteil-Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        if (isOS6465 && ps1Type === 'third-party' && !ps1Wattage) {
+            showNotification('Bitte gib die Wattage für Third-Party Netzteil 1 an!', 'error');
+            return;
+        }
+
+        if (enablePs2 && (!ps2Name || !ps2Type)) {
+            showNotification('Bitte fülle alle Netzteil 2 Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        if (enablePs2 && ps2Type === 'third-party' && !ps2Wattage) {
+            showNotification('Bitte gib die Wattage für Third-Party Netzteil 2 an!', 'error');
+            return;
+        }
+
+        if (enableLacp && (!lacpAggNumber || !lacpName || !lacpPortsInput)) {
+            showNotification('Bitte fülle alle LACP Pflichtfelder aus!', 'error');
+            return;
+        }
+
+        var vlans = [];
+        document.querySelectorAll('#vlanBuilder .vlan-item').forEach(function(item) {
+            var inputs = item.querySelectorAll('input');
+            if (inputs[0].value && inputs[1].value) {
+                vlans.push({
+                    id: inputs[0].value,
+                    name: inputs[1].value
+                });
+            }
+        });
+
+        if (vlans.length === 0) {
+            showNotification('Mindestens ein VLAN muss konfiguriert sein!', 'error');
+            return;
+        }
+
+        var uplinkPorts = uplinkPortsInput.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+        var lacpPorts = lacpPortsInput.split(',').map(function(p) { return p.trim(); }).filter(function(p) { return p; });
+
+        var uplinkAliases = {};
+        if (uplinkDescriptions) {
+            uplinkDescriptions.split('\n').forEach(function(line) {
+                var parts = line.split(':');
+                if (parts.length >= 2) {
+                    var port = parts[0].trim();
+                    var desc = parts.slice(1).join(':').trim();
+                    if (port && desc) {
+                        uplinkAliases[port] = desc;
+                    }
+                }
+            });
+        }
+
+        var portConfigs = [];
+        document.querySelectorAll('#portConfigBuilder .port-config').forEach(function(item) {
+            var inputs = item.querySelectorAll('input, select');
+            var range = inputs[0].value;
+            var alias = inputs[1].value;
+            var speed = inputs[2].value;
+            var vlan = inputs[3].value;
+            
+            if (range && vlan) {
+                portConfigs.push({ range: range, alias: alias, speed: speed, vlan: vlan });
+            }
+        });
+
+        var txt = '';
+        txt += '!========================================!\n';
+        txt += '! File: /flash/working/vcboot.cfg        !\n';
+        txt += '!========================================!\n';
+        
+        if (isOS6465) {
+            txt += '! Power Supply Configuration:\n';
+            if (ps1Type === 'third-party') {
+                txt += 'powersupply 1 name "' + ps1Name + '" type third-party wattage ' + ps1Wattage + '\n';
+            } else {
+                txt += 'powersupply 1 name "' + ps1Name + '" type ' + ps1Type + '\n';
+            }
+            
+            if (enablePs2) {
+                if (ps2Type === 'third-party') {
+                    txt += 'powersupply 2 name "' + ps2Name + '" type third-party wattage ' + ps2Wattage + '\n';
+                } else {
+                    txt += 'powersupply 2 name "' + ps2Name + '" type ' + ps2Type + '\n';
+                }
+            }
+            txt += '\n';
+        }
+        
+        txt += '! Chassis:\n';
+        txt += 'system name "' + systemName + '"\n';
+        txt += 'system contact "' + systemContact + '"\n';
+        txt += 'system location "' + location + '"\n\n';
+        
+        txt += '! Configuration:\n';
+        txt += 'configuration error-file-limit 2\n\n';
+
+        txt += '! Capability Manager:\n';
+        txt += '! Virtual Flow Control:\n';
+        txt += '! LFP:\n';
+        txt += '! Interface:\n';
+
+        if (portConfigs.length > 0) {
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                for (var i = start; i <= end; i++) {
+                    var portId = '1/1/' + i;
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast rate cap% 5 low-threshold 3\n';
+                    txt += 'interfaces port ' + portId + ' flood-limit bcast action trap\n';
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast action trap\n';
+                    
+                    if (pc.alias) {
+                        txt += 'interfaces port ' + portId + ' alias "' + pc.alias + '"\n';
+                    }
+                    
+                    if (pc.speed) {
+                        txt += 'interfaces port ' + portId + ' speed ' + pc.speed + '\n';
+                    }
+                }
+            });
+            
+            uplinkPorts.forEach(function(port) {
+                var portId = '1/1/' + port;
+                if (uplinkAliases[port]) {
+                    txt += 'interfaces port ' + portId + ' alias "' + uplinkAliases[port] + '"\n';
+                }
+            });
+            
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                for (var i = start; i <= end; i++) {
+                    var portId = '1/1/' + i;
+                    txt += 'interfaces port ' + portId + ' flood-limit mcast rate enable\n';
+                }
+            });
+            
+            txt += 'interfaces ddm enable\n';
+            txt += 'interfaces ddm-trap enable\n';
+        }
+        txt += '\n';
+
+        txt += '! Port_Manager:\n';
+        txt += '! Link Aggregate:\n';
+        
+        if (enableLacp && lacpPorts.length > 0) {
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' size ' + lacpPorts.length + ' admin-state enable\n';
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' name "' + lacpName + '"\n';
+            txt += 'linkagg lacp agg ' + lacpAggNumber + ' actor admin-key ' + lacpAggNumber + '\n';
+            lacpPorts.forEach(function(port) {
+                txt += 'linkagg lacp port 1/1/' + port + ' actor admin-key ' + lacpAggNumber + '\n';
+            });
+        }
+        
+        txt += '! VLAN:\n';
+        txt += 'vlan 1 admin-state disable\n';
+        
+        if (vlans.length > 0) {
+            var vlanIds = vlans.map(function(v) { return parseInt(v.id); }).sort(function(a, b) { return a - b; });
+            var vlanRanges = [];
+            var rangeStart = vlanIds[0];
+            var rangePrev = vlanIds[0];
+            
+            for (var i = 1; i <= vlanIds.length; i++) {
+                if (i === vlanIds.length || vlanIds[i] !== rangePrev + 1) {
+                    if (rangeStart === rangePrev) {
+                        vlanRanges.push(rangeStart);
+                    } else {
+                        vlanRanges.push(rangeStart + '-' + rangePrev);
+                    }
+                    if (i < vlanIds.length) {
+                        rangeStart = vlanIds[i];
+                    }
+                }
+                if (i < vlanIds.length) {
+                    rangePrev = vlanIds[i];
+                }
+            }
+            
+            vlanRanges.forEach(function(range) {
+                txt += 'vlan ' + range + ' admin-state enable\n';
+            });
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' name "' + vlan.name + '"\n';
+            });
+        }
+        
+        if (uplinkPorts.length > 0) {
+            var uplinkPortList = uplinkPorts.length === 1 ? '1/1/' + uplinkPorts[0] : '1/1/' + uplinkPorts.join('-');
+            
+            if (nativeVlan) {
+                txt += 'vlan ' + nativeVlan + ' members port ' + uplinkPortList + ' untagged\n';
+            }
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' members port ' + uplinkPortList + ' tagged\n';
+            });
+        }
+        
+        if (enableLacp && lacpAggNumber) {
+            if (nativeVlan) {
+                txt += 'vlan ' + nativeVlan + ' members linkagg ' + lacpAggNumber + ' untagged\n';
+            }
+            
+            vlans.forEach(function(vlan) {
+                txt += 'vlan ' + vlan.id + ' members linkagg ' + lacpAggNumber + ' tagged\n';
+            });
+        }
+        
+        if (portConfigs.length > 0) {
+            portConfigs.forEach(function(pc) {
+                var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                var start = parseInt(parts[0].trim());
+                var end = parseInt(parts[1].trim());
+                
+                var portRange = start === end ? '1/1/' + start : '1/1/' + start + '-' + end;
+                txt += 'vlan ' + pc.vlan + ' members port ' + portRange + ' untagged\n';
+            });
+        }
+        txt += '\n';
+
+        txt += '! PVLAN:\n';
+        txt += '! Spanning Tree:\n';
+        txt += 'spantree mode flat\n';
+        txt += 'spantree vlan 1 admin-state enable\n';
+        vlans.forEach(function(vlan) {
+            txt += 'spantree vlan ' + vlan.id + ' admin-state enable\n';
+        });
+        txt += '\n';
+
+        txt += '! DA-UNP:\n\n';
+        txt += '! Bridging:\n';
+        txt += '! Port Mirroring:\n';
+        txt += '! Port Mapping:\n';
+        txt += '! IP:\n';
+        txt += 'ip service ftp admin-state disable\n';
+        txt += 'ip service telnet admin-state disable\n';
+        txt += 'ip interface "' + ipInterfaceName + '" address ' + ipInterfaceAddress + ' mask ' + ipInterfaceMask + ' vlan ' + managementVlan + ' ifindex 2\n\n';
+
+        txt += '! IPv6:\n';
+        txt += '! IPSec:\n';
+        txt += '! IPMS:\n';
+        txt += '! AAA:\n';
+        txt += 'aaa authentication default "local"\n\n';
+
+        txt += '! NTP:\n';
+        if (enableNtp && ntpServer) {
+            txt += 'ntp server ' + ntpServer + ' burst iburst\n';
+            txt += 'ntp client admin-state enable\n';
+        }
+        txt += '\n';
+
+        txt += '! QOS:\n';
+        if (enableQos && portConfigs.length > 0) {
+            txt += 'qos user-port filter bgp ospf rip vrrp dhcp-server pim dvmrp dns-reply user-port shutdown bpdu\n';
+            
+            var allAccessPortRanges = [];
+            portConfigs.forEach(function(pc) {
+                allAccessPortRanges.push(pc.range);
+            });
+            
+            if (allAccessPortRanges.length > 0) {
+                var portGroupList = allAccessPortRanges.map(function(range) {
+                    return '1/1/' + range;
+                }).join(' ');
+                txt += 'policy port group UserPorts ' + portGroupList + '\n';
+                txt += 'qos apply\n';
+            }
+        }
+        txt += '\n';
+
+        txt += '! Policy Manager:\n';
+        txt += '! VLAN Stacking:\n';
+        txt += '! ERP:\n';
+        txt += '! MVRP:\n';
+        txt += '! LLDP:\n';
+        txt += 'lldp nearest-bridge chassis notification enable\n';
+        txt += 'lldp nearest-bridge chassis tlv management port-description enable system-name enable system-description enable\n';
+        txt += 'lldp nearest-bridge chassis tlv management management-address enable\n';
+        txt += 'lldp nearest-bridge chassis tlv med network-policy enable\n\n';
+
+        txt += '! UDLD:\n';
+        txt += '! Server Load Balance:\n';
+        txt += '! High Availability Vlan:\n';
+        txt += '! Session Manager:\n';
+        txt += 'session prompt default "' + systemName + '->"\n';
+        txt += 'command-log enable\n';
+        txt += 'session cli-auto-complete-space enable\n\n';
+
+        txt += '! Web:\n';
+        txt += '! Trap Manager:\n\n';
+        txt += '! Health Monitor:\n';
+        txt += 'health threshold memory 90\n\n';
+        txt += '! System Service:\n';
+        txt += 'swlog output tty enable\n';
+        if (enableSyslog && syslogServer) {
+            txt += 'swlog output socket ' + syslogServer + ' remote command-log\n';
+        }
+        if (enableDomain && domainName) {
+            txt += 'ip domain-name ' + domainName + '\n';
+        }
+        if (enableDomain && nameServer) {
+            txt += 'ip name-server ' + nameServer + '\n';
+        }
+        if (enableDomain) {
+            txt += 'ip domain-lookup\n';
+        }
+        txt += 'system timezone CET\n\n';
+
+        txt += '! SNMP:\n';
+        txt += 'snmp security authentication all\n';
+        txt += 'snmp authentication-trap enable\n\n';
+        txt += '! BFD:\n';
+        txt += '! IP Route Manager:\n';
+        txt += 'ip static-route 0.0.0.0/0 gateway ' + defaultGateway + ' metric 1\n\n';
+
+        txt += '! VRRP:\n';
+        txt += '! UDP Relay:\n';
+        txt += '! RIP:\n';
+        txt += '! OSPF:\n';
+        txt += '! IP Multicast:\n';
+        txt += '! DVMRP:\n';
+        txt += '! IPMR:\n';
+        txt += '! RIPng:\n';
+        txt += '! OSPF3:\n';
+        txt += '! BGP:\n';
+        txt += '! ISIS:\n';
+        txt += '! Module:\n';
+        txt += '! LAN Power:\n';
+        if (enablePoe) {
+            txt += 'lanpower slot 1/1 service start\n';
+        }
+        txt += '\n';
+
+        txt += '! RDP:\n';
+        txt += '! DHL:\n';
+        txt += '! Ethernet-OAM:\n';
+        txt += '! SAA:\n';
+        txt += '! SPB-ISIS:\n';
+        txt += '! SVCMGR:\n';
+        txt += '! EVB:\n';
+        txt += '! APP-FINGERPRINT:\n';
+        txt += '! FCOE:\n';
+        txt += '! QMR:\n';
+        txt += '! OPENFLOW:\n';
+        txt += '! Dynamic auto-fabric:\n';
+        txt += '! SIP Snooping:\n';
+        txt += '! DHCP Server:\n';
+        txt += '! DHCPv6 Relay:\n';
+        txt += '! DHCPv6 Snooping:\n';
+        txt += '! DHCPv6 Server:\n';
+        txt += '! DHCP Message Service:\n';
+        txt += '! DHCP Active Lease Service:\n';
+        txt += '! Virtual Chassis Split Protection:\n';
+        txt += '! DHCP Snooping:\n';
+        txt += '! APP-MONITORING:\n';
+        txt += '! Loopback Detection:\n';
+        
+        if (enableLoopbackDetection) {
+            txt += 'loopback-detection enable\n';
+            txt += 'loopback-detection remote-origin enable\n';
+            txt += 'loopback-detection autorecovery-timer ' + loopbackTimer + '\n';
+            
+            if (portConfigs.length > 0) {
+                portConfigs.forEach(function(pc) {
+                    var parts = pc.range.includes('-') ? pc.range.split('-') : [pc.range, pc.range];
+                    var start = parseInt(parts[0].trim());
+                    var end = parseInt(parts[1].trim());
+                    
+                    for (var i = start; i <= end; i++) {
+                        var portId = '1/1/' + i;
+                        txt += 'loopback-detection port ' + portId + ' enable\n';
+                        txt += 'loopback-detection port ' + portId + ' remote-origin enable\n';
+                    }
+                });
+            }
+        }
+        txt += '\n';
+
+        txt += '! VM-SNOOPING:\n';
+        txt += '! PPPOE-IA:\n';
+        txt += '! Security:\n';
+        txt += '! Zero Configuration:\n';
+        txt += '! MAC Security:\n';
+        txt += '! OVC:\n';
+        txt += 'cloud-agent discovery-interval 30\n\n';
+        txt += '! EFM-OAM:\n';
+        txt += '! ALARM-MANAGER:\n';
+        txt += '! DEVICE-PROFILE:\n\n';
+        txt += 'device-profile admin-state enable\n\n';
+        txt += '! PTP:\n';
+        txt += '! IP DHCP RELAY:\n';
+        txt += '! TEST-OAM:\n';
+        txt += '! LOOPBACK TEST:\n';
+        txt += '! UDP6 RELAY:\n';
+        txt += '! MGMT AGENT:\n';
+        txt += '! MRP:\n';
+        txt += '! PKGMGR:\n';
+        txt += '! SITEMGR:\n';
+        txt += '! SWLIC:\n';
+        txt += '! MPLS:\n';
+        txt += '! LDP:\n';
+
+        document.getElementById('configOutput').textContent = txt;
+        currentConfig = txt;
+        showNotification('Konfiguration erfolgreich generiert!');
+    }
+
+    function downloadConfig() {
+        if (!currentConfig) {
+            showNotification('Bitte erst eine Konfiguration generieren!', 'error');
+            return;
+        }
+        
+        var systemName = document.getElementById('systemName').value || 'switch';
+        var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        var filename = systemName + '_config_' + timestamp + '.txt';
+        
+        var blob = new Blob([currentConfig], { type: 'text/plain' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        showNotification('Download gestartet!');
+    }
+
+    function copyConfig() {
+        if (!currentConfig) {
+            showNotification('Bitte erst eine Konfiguration generieren!', 'error');
+            return;
+        }
+        
+        navigator.clipboard.writeText(currentConfig).then(function() {
+            showNotification('In Zwischenablage kopiert!');
+        });
+    }
+
+    document.getElementById('enableNtp').addEventListener('change', toggleNtp);
+    document.getElementById('enableDomain').addEventListener('change', toggleDomain);
+    document.getElementById('enableSyslog').addEventListener('change', toggleSyslog);
+    document.getElementById('enableLoopbackDetection').addEventListener('change', toggleLoopbackDetection);
+    document.getElementById('enableLacp').addEventListener('change', toggleLacp);
+    document.getElementById('enablePs2').addEventListener('change', togglePs2);
+    document.getElementById('ps1Type').addEventListener('change', togglePs1Type);
+    document.getElementById('ps2Type').addEventListener('change', togglePs2Type);
+    document.getElementById('switchType').addEventListener('change', updateSwitchDefaults);
+    document.getElementById('addVlanBtn').addEventListener('click', addVlan);
+    document.getElementById('addPortBtn').addEventListener('click', addPortConfig);
+    document.getElementById('generateBtn').addEventListener('click', generateConfig);
+    document.getElementById('downloadBtn').addEventListener('click', downloadConfig);
+    document.getElementById('copyBtn').addEventListener('click', copyConfig);
+
+    document.querySelectorAll('#vlanBuilder .vlan-item button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            removeVlan(this);
+        });
+    });
+
+    updateSwitchDefaults();
+})();
+</script>
+</body>
+</html>
