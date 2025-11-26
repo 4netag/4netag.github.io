@@ -413,13 +413,13 @@
         txt += 'end\n';
         txt += 'config firewall addrgrp\n';
         txt += '    edit "G_FMS-Firewalls"\n';
-        txt += '	append member "H_' + systemName + '"\n';
+        txt += '    append member "H_' + systemName + '"\n';
         txt += '    next\n';
         txt += 'end\n';
         txt += 'config system zone\n';
         txt += '    edit "Z_VPN-4NS-FMG"\n';
         txt += '    append interface "FMG-' + systemName + '"\n';
-        txt += '	next\n';
+        txt += '    next\n';
         txt += 'end\n';
 	txt += '-----ENDE FMG FW CONFIG-----\n';		
 
