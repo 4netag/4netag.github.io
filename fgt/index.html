@@ -304,9 +304,9 @@
         txt += '        set ike-version 2\n';
         txt += '        set peertype any\n';
         txt += '        set net-device disable\n';
-        txt += '        set proposal chacha20poly1305-prfsha512\n';
+        txt += '        set proposal aes256gcm-prfsha384\n';
         txt += '        set comments "FMG_4N_Serv"\n';
-        txt += '        set dhgrp 27\n';
+        txt += '        set dhgrp 21\n';
         txt += '        set nattraversal disable\n';
         txt += '        set remote-gw 156.67.38.151\n';
         txt += '        set psksecret ' + pskSecret + '\n';
@@ -315,8 +315,8 @@
         txt += 'config vpn ipsec phase2-interface\n';
         txt += '    edit "VPN_4N-FGM-NS"\n';
         txt += '        set phase1name "VPN_4N-FGM-NS"\n';
-        txt += '        set proposal chacha20poly1305\n';
-        txt += '        set dhgrp 27\n';
+        txt += '        set proposal aes256gcm\n';
+        txt += '        set dhgrp 21\n';
         txt += '        set auto-negotiate enable\n';
         txt += '    next\n';
         txt += 'end\n';
@@ -384,9 +384,9 @@
         txt += '        set ike-version 2\n';
         txt += '        set peertype any\n';
         txt += '        set net-device disable\n';
-        txt += '        set proposal chacha20poly1305-prfsha512\n';
+        txt += '        set proposal aes256gcm-prfsha384\n';
         txt += '        set comments "Manager-Service Customer ' + customerID + '"\n';
-        txt += '        set dhgrp 27\n';
+        txt += '        set dhgrp 21\n';
         txt += '        set nattraversal disable\n';
         txt += '        set remote-gw ' + wanIP + '\n';
         txt += '        set psksecret ' + pskSecret + '\n';
@@ -395,8 +395,8 @@
         txt += 'config vpn ipsec phase2-interface\n';
         txt += '    edit "FMG-' + systemName + '"\n';
         txt += '        set phase1name "FMG-' + systemName + '"\n';
-        txt += '        set proposal chacha20poly1305\n';
-        txt += '        set dhgrp 27\n';
+        txt += '        set proposal aes256gcm\n';
+        txt += '        set dhgrp 21\n';
         txt += '        set auto-negotiate enable\n';
         txt += '    next\n';
         txt += 'end\n';
